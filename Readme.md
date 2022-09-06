@@ -1,7 +1,7 @@
 # Личный проект «Шесть городов»
 
-* Студент: [Сергей Долгушин](https://up.htmlacademy.ru/nodejs-api/2/user/2024731).
-* Наставник: `Неизвестно`.
+* Студент: [Сергей Долгушин](https://htmlacademy.ru/profile/id2024731).
+* Наставник: [Сергей Вохмянин](https://htmlacademy.ru/profile/id530823).
 
 ---
 
