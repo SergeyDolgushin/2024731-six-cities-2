@@ -28,6 +28,7 @@ export type OfferType = {
   description: string,
   bedrooms: number,
   commentsCount: number,
+  createdDate: Date
 };
 
 

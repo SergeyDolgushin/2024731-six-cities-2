@@ -1,0 +1,108 @@
+{
+  "api": {
+    "titles": [
+      "Дом один",
+      "Дом другой",
+      "Еще один дом",
+      "Новый дом",
+      "Старый дом"
+    ],
+    "descriptions": [
+      "Дом у озера",
+      "Дом в горах",
+      "Дом у парка",
+      "Тихое место",
+      "Дом в центре"
+    ],
+    "price": [
+
+    ],
+    "rating": [
+
+    ],
+    "images": [
+      "image_001.jpg",
+      "image_002.jpg",
+      "image_003.jpg",
+      "image_004.jpg",
+      "image_005.jpg",
+      "image_006.jpg",
+      "image_007.jpg",
+      "image_008.jpg",
+      "image_009.jpg",
+      "image_010.jpg",
+      "image_011.jpg",
+      "image_012.jpg"
+    ],
+    "id": [
+      "0"
+    ],
+    "isFavorite": [
+      false
+    ],
+    "isPremium": [
+      false
+    ],
+    "types": [
+      "apartment",
+      "house",
+      "room",
+      "hotel"
+    ],
+    "previewImages": [
+      "preview_image_001.jpg",
+      "preview_image_002.jpg",
+      "preview_image_003.jpg",
+      "preview_image_004.jpg",
+      "preview_image_005.jpg",
+      "preview_image_006.jpg"
+    ],
+    "location": [
+
+    ],
+    "city": [
+
+    ],
+    "goods": [
+      "Breakfast",
+      "Air conditioning",
+      "Laptop friendly workspace",
+      "Baby seat",
+      "Washer",
+      "Towels",
+      "Fridge"
+    ],
+    "maxAdults": [
+
+    ],
+    "hostName": [
+      "Alice",
+      "Bob",
+      "Jack"
+    ],
+    "hostEmail": [
+      "asv@email.email",
+      "dude@mail.email",
+      "garbage@gmail.email"
+    ],
+    "hostPassword": [
+      "qwerty",
+      "12345",
+      "password"
+    ],
+    "hostAvatar": [
+      "aliceImg.jpg",
+      "dudeImg.jpg",
+      "photo.jpg"
+    ],
+    "hostIsPro": [
+      "false"
+    ],
+    "bedrooms": [
+
+    ],
+    "commentsCount": [
+
+    ]
+  }
+}
