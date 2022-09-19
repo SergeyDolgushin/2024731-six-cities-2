@@ -12,6 +12,9 @@ export default class GenerateCommand implements CliCommandInterface {
     const [count, filepath, url] = parameters;
     const offerCount = Number.parseInt(count, 10);
 
+    if (!count || !filepath || !url) {
+      return console.log('Command parameters missing ...');
+    }
 
     try {
       this.initialData = await got.get(url).json();

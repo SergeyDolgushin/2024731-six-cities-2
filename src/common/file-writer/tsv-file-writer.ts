@@ -19,6 +19,5 @@ export default class TSVFileWriter implements FileWriterInterface {
         this.stream.once('drain', () => resolve());
       });
     }
-    return Promise.resolve();
   }
 }
