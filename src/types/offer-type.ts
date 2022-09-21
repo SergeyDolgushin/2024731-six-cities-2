@@ -15,8 +15,8 @@ export type OfferType = {
   rating: number,
   images: string[],
   title: string,
-  id: number,
-  isFavorite: boolean
+  offerId: number,
+  isFavorite: boolean,
   isPremium: boolean,
   type: string,
   previewImage: string,

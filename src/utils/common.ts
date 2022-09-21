@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import { OfferType } from '../types/offer-type.js';
 
 const getBooleanValue = (input: string):boolean => input === 'true';
@@ -14,7 +15,7 @@ export const createOffer = (row: string) => {
     rating: Number(rating),
     images: images.split(';'),
     title,
-    id: Number(id),
+    offerId: Number(id),
     isFavorite: getBooleanValue(isFavorite),
     isPremium: getBooleanValue(isPremium),
     type,
@@ -48,3 +49,9 @@ export const createOffer = (row: string) => {
 
 export const getErrorMessage = (error: unknown): string =>
   error instanceof Error ? error.message : '';
+
+export const createSHA256 = (line: string, salt: string): string => {
+  const shaHasher = crypto.createHmac('sha256', salt);
+  return shaHasher.update(line).digest('hex');
+};
+
