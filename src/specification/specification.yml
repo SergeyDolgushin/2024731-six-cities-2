@@ -1,0 +1,840 @@
+openapi: 3.1.0
+info:
+  title: API сервер для демо-проекта «Шесть городов».
+  description: |-
+    * Список ресурсов и маршрутов сервера «Шесть городов».
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  version: 2.0.0
+tags:
+  - name: offers
+    description: Действия с объявлениями.
+  - name: favorite
+    description: Действия с избранными предложениями.
+  - name: comments
+    description: Действия с комментариями.
+  - name: users
+    description: Действия с пользователем.
+
+paths:
+  /users/register:
+    post:
+      tags:
+        - users
+      summary: Регистрация пользователя
+      description: Регистрирует нового пользователя.
+
+      requestBody:
+        description: Информация для создания нового пользователя.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/createUser'
+        required: true
+
+      responses:
+        "201":
+          description: Пользователь зарегистрирован. Объект пользователя.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/user'
+
+        "409":
+          description: Пользователь с таким email уже существует.
+
+
+  /users/login:
+    get:
+      tags:
+        - users
+      summary: Проверка состояния пользователя
+      description: Проверка состояния клиента — авторизован или нет. Осуществляется на основании токена.
+      parameters:
+        - name: X-Token
+          in: header
+          description: Авторизационный токен пользователя
+          required: true
+          schema:
+            type: string
+            example: T2xpdmVyLmNvbm5lckBnbWFpbC5jb20=
+      responses:
+        '200':
+          description: Статус авторизации пользователя
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/user'
+        '401':
+          description: Пользователь не авторизован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthErrorMessage'
+      security:
+        - tokenAuth: []
+    post:
+      tags:
+        - users
+      summary: Аутентификация и авторизация пользователя
+      description: Сервис предоставляет ресурс для аутентификации и авторизации пользователя.
+      requestBody:
+        description: Объект, содержащий логин и пароль пользователя.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/userLogin'
+        required: true
+      responses:
+        '200':
+          description: Авторизация успешна завершена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthInfo'
+        '401':
+          description: Пользователь не авторизован, неверные логин/пароль
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthErrorMessage'
+      security:
+        - tokenAuth: []
+
+  /users/logout:
+    delete:
+      tags:
+        - users
+      summary: Завершить сеанс пользователя
+      description: Завершает сеанс работы — выход из закрытой части приложения.
+      parameters:
+        - name: X-Token
+          in: header
+          description: Авторизационный токен пользователя
+          required: true
+          schema:
+            type: string
+            example: T2xpdmVyLmNvbm5lckBnbWFpbC5jb20=
+      responses:
+        '204':
+          description: Сеанс завершён
+      security:
+        - tokenAuth: []
+
+  /users/{login}/avatar:
+    post:
+      tags:
+        - users
+      summary: Загрузить изображение аватара
+      description: Загружает изображение аватара пользователя. Изображение
+        аватара должно быть в формате `png` или `jpg`.
+      parameters:
+        - name: X-Token
+          in: header
+          description: Авторизационный токен пользователя
+          required: true
+          schema:
+            type: string
+            example: T2xpdmVyLmNvbm5lckBnbWFpbC5jb20=
+        - name: login
+          in: path
+          description: Необязательный параметр. Указывается, если надо получить более 60 предложений в ответе.
+          required: true
+          schema:
+            type: string
+            example: keks@htmlacademy.ru
+      requestBody:
+        description: имя загружаемого изображения
+        content:
+          multipart/form-data:
+            schema:
+              type: string
+              example: file1
+
+        required: true
+      responses:
+        '200':
+          description: Статус авторизации пользователя
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/user'
+        '401':
+          description: Пользователь не авторизован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthErrorMessage'
+      security:
+        - tokenAuth: []
+
+  /offers/{offerCount}:
+    get:
+      tags:
+        - offers
+      summary: Возвращает массив предложений.
+      description: По умолчанию возвращает массив из 60 предложений. Каждое предложение описано в виде объекта.
+      parameters:
+        - name: offerCount
+          in: path
+          description: Необязательный параметр. Указывается, если надо получить более 60 предложений в ответе.
+          required: false
+          schema:
+            type: number
+            example: 61
+
+      responses:
+        "200":
+          description: Массив предложений.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/offers'
+
+  /offers:
+    post:
+        tags:
+          - offers
+        summary: Создание нового предложения
+        description: Создает новое предложение по аренде
+        parameters:
+        - name: X-Token
+          in: header
+          description: Авторизационный токен пользователя
+          required: true
+          schema:
+            type: string
+            example: T2xpdmVyLmNvbm5lckBnbWFpbC5jb20=
+        requestBody:
+          description: Информация для создания нового пользователя.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/offer'
+          required: true
+
+        responses:
+          "201":
+            description: Предложение создано. Объект пользователя.
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/offer'
+          '401':
+            description: Пользователь не авторизован
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/AuthErrorMessage'
+        security:
+          - tokenAuth: []
+
+
+  /offers/{offerId}:
+    get:
+      tags:
+        - offers
+      summary: Возвращает предложение с идентификатором offerId.
+      description: Возвращает запрошенное предложение в виде объекта.
+      parameters:
+        - name: offerId
+          in: path
+          description: Уникальный идентификатор предложения
+          required: true
+          schema:
+            type: number
+            example: 1
+
+      responses:
+        "200":
+          description: Массив предложений.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/offer'
+        "404":
+          description: Предложение не найдено.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorMessage'
+    patch:
+      tags:
+        - offers
+      summary: Редактирует предложение с идентификатором offerId.
+      description: Редактирует предложение с идентификатором offerId и возвращает обновленное предложение в виде объекта.
+      parameters:
+        - name: offerId
+          in: path
+          description: Уникальный идентификатор предложения
+          required: true
+          schema:
+            type: number
+            example: 1
+      requestBody:
+          description: Редактируемый объект предложения.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/offer'
+          required: true
+
+      responses:
+        "200":
+          description: Обновленный объект предложения.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/offer'
+        "401":
+            description: Пользователь не авторизован
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/AuthErrorMessage'
+        "403":
+            description: Нет прав для редактирования запрошенного предложения
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/AuthModificationErrorMessage'
+        "404":
+          description: Предложение не найдено.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorMessage'
+      security:
+        - tokenAuth: []
+    delete:
+      tags:
+        - offers
+      summary: Удаление предложения с идентификатором offerId.
+      description: Удаляет предложение с идентификатором offerId.
+      parameters:
+        - name: offerId
+          in: path
+          description: Уникальный идентификатор предложения
+          required: true
+          schema:
+            type: number
+            example: 1
+      responses:
+        "204":
+          description: Объект удален.
+        "401":
+            description: Пользователь не авторизован
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/AuthErrorMessage'
+        "403":
+            description: Нет прав для удаления запрошенного предложения
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/AuthModificationErrorMessage'
+        "404":
+          description: Предложение не найдено.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorMessage'
+      security:
+        - tokenAuth: []
+
+  /offers/{cityName}/premium:
+    get:
+      tags:
+        - offers
+      summary: Получить список предложений неподалёку
+      description: Возвращает массив из 3-х или менее предложений. Каждое предложение описано в виде объекта.
+      operationId: getHotelsNearby
+      parameters:
+      - name: cityName
+        in: path
+        description: Город, для которого ищутся премиальные предложения
+        required: true
+        schema:
+          type: number
+          example: Paris
+      responses:
+        '200':
+          description: Массив предложений
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  allOf:
+                    - $ref: '#/components/schemas/offersPremium'
+                    - type: object
+        "404":
+          description: Предложение не найдено.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundPremiumErrorMessage'
+
+  /favorite:
+    get:
+      tags:
+        - favorite
+      summary: Получить список избранных предложений
+      description: Возвращает массив предложений, добавленных в избранное.
+      operationId: getFavorites
+      parameters:
+        - name: X-Token
+          in: header
+          description: Авторизационный токен пользователя
+          required: true
+          schema:
+            type: string
+            example: T2xpdmVyLmNvbm5lckBnbWFpbC5jb20=
+      responses:
+        '200':
+          description: Массив предложений
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/offers'
+        '401':
+          description: Пользователь не авторизован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthErrorMessage'
+      security:
+        - tokenAuth: []
+
+  /favorite/{offerId}/{status}:
+    post:
+      tags:
+        - favorite
+      summary: Изменить статус избранного у предложение
+      description: Возвращает предложение с идентификатором `offerId` с актуальным состоянием поля `isFavorite`
+      operationId: postFavorite
+      parameters:
+        - name: offerId
+          in: path
+          description: Уникальный идентификатор предложения
+          required: true
+          schema:
+            type: number
+            example: 1
+        - name: status
+          in: path
+          description: Статус избранного предложения. Может быть `1` или `0`, где `1` добавляет предложение в избранное, а `0` удаляет
+          required: true
+          schema:
+            type: number
+            example: 1
+        - name: X-Token
+          in: header
+          description: Авторизационный токен пользователя
+          required: true
+          schema:
+            type: string
+            example: T2xpdmVyLmNvbm5lckBnbWFpbC5jb20=
+      responses:
+        '200':
+          description: Объект предложения
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/offers'
+        '401':
+          description: Пользователь не авторизован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthErrorMessage'
+      security:
+        - tokenAuth: []
+
+  /comments/{offerId}:
+    get:
+      tags:
+        - comments
+      summary: Получить список комментариев
+      description: Возвращает список комментариев для предложения с идентификатором `offerId`.
+      operationId: getComment
+      parameters:
+        - name: offerId
+          in: path
+          description: Уникальный идентификатор предложения
+          required: true
+          schema:
+            type: number
+            example: 1
+        - name: X-Token
+          in: header
+          description: Авторизационный токен пользователя
+          required: false
+          schema:
+            type: string
+            example: T2xpdmVyLmNvbm5lckBnbWFpbC5jb20=
+      responses:
+        '200':
+          description: Массив комментариев
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CommentGet'
+        '400':
+          description: Ошибка тела запроса
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorMessage'
+    post:
+      tags:
+        - comments
+      summary: Добавить новый комментарий
+      description: Добавляет новый комментарий для предложения с идентификатором `offerId`.
+      operationId: postComment
+      parameters:
+        - name: X-Token
+          in: header
+          description: Авторизационный токен пользователя
+          required: true
+          schema:
+            type: string
+            example: T2xpdmVyLmNvbm5lckBnbWFpbC5jb20=
+        - name: offerId
+          in: path
+          description: Уникальный идентификатор предложения
+          required: true
+          schema:
+            type: number
+            example: 1
+      requestBody:
+        description: Объект с новым комментарием
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommentPost'
+        required: true
+      responses:
+        '200':
+          description: Массив комментариев для предложения с идентификатором `offerId`
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CommentGet'
+        '400':
+          description: Ошибка тела запроса
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorMessage'
+        '401':
+          description: Пользователь не авторизован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthErrorMessage'
+      security:
+        - tokenAuth: []
+
+components:
+  schemas:
+    createUser:
+      type: object
+      properties:
+        email:
+          type: string
+          example: keks@htmlacademy.ru
+        name:
+          type: string
+          example: Jonh
+        password:
+          type: string
+          example: ashHJ12
+        isPro:
+          type: boolean
+          example: true
+    user:
+      type: object
+      properties:
+        email:
+          type: string
+          example: keks@htmlacademy.ru
+        name:
+          type: string
+          example: Jonh
+        isPro:
+          type: boolean
+          example: true
+        userAvatar:
+          type: string
+          example: avatar.jpg
+    userLogin:
+      type: object
+      properties:
+        email:
+          type: string
+          example: keks@htmlacademy.ru
+        password:
+          type: string
+          example: ajsdhuH
+    CommentGet:
+      type: object
+      properties:
+        comment:
+          type: string
+          example: A quiet cozy and picturesque that hides behind a a river by the unique lightness of Amsterdam.
+        date:
+          type: string
+          example: 2019-05-08T14:13:56.569Z
+        rating:
+          type: number
+          example: 4
+        user:
+          type: object
+          properties:
+            email:
+              type: string
+              example: keks@htmlacademy.ru
+            name:
+              type: string
+              example: Jonh
+            isPro:
+              type: boolean
+              example: true
+            userAvatar:
+              type: string
+              example: avatar.jpg
+    CommentPost:
+      type: object
+      properties:
+        comment:
+          type: string
+          example: A quiet cozy and picturesque that hides behind a a river by the unique lightness of Amsterdam.
+        rating:
+          type: number
+          example: 4
+
+    offer:
+      type: object
+      properties:
+        price:
+          type: number
+          example: 120
+        rating:
+          type: number
+          example: 3.5
+        images:
+          type: array
+          items:
+            type: string
+            example: img/1.png, img/2.png
+        title:
+          type: string
+          example: Beautiful & luxurious studio at great location
+        offerId:
+          type: number
+          example: 1
+        isFavorite:
+          type: boolean
+          example: true
+        isPremium:
+          type: boolean
+          example: false
+        type:
+          type: string
+          example: apartment
+        previewImage:
+          type: string
+          example: img/1.jpg
+        location:
+          type: object
+          properties:
+            latitude:
+              type: number
+              example: 52.370216
+            longitude:
+              type: number
+              example: 4.895168
+        city:
+          type: object
+          properties:
+            location:
+              type: object
+              properties:
+                latitude:
+                  type: number
+                  example: 52.370216
+                longitude:
+                  type: number
+                  example: 4.895168
+            name:
+              type: string
+              example: Amsterdam
+        goods:
+          type: array
+          example:  ["Heating"]
+        maxAdults:
+          type: number
+          example: 2
+        host:
+          type: object
+          properties:
+            avatarUrl:
+              type: string
+              example: img/1.png
+            email:
+              type: string
+              example: alise@mail.ru,
+            isPro:
+              type: boolean
+              example: true
+            name:
+              type: string
+              example: Angelina
+        description:
+          type: string
+          example: A quiet cozy and picturesque that hides behind a a river by the unique lightness of Amsterdam.
+        bedrooms:
+          type: number
+          example: 2
+        commentsCount:
+          type: number
+          example: 2
+        createdDate:
+          type: number
+          example: 2019-05-08T14:13:56.569Z
+    offers:
+      type: object
+      properties:
+        price:
+          type: number
+          example: 120
+        rating:
+          type: number
+          example: 3.5
+        title:
+          type: string
+          example: Beautiful & luxurious studio at great location
+        offerId:
+          type: number
+          example: 1
+        isFavorite:
+          type: boolean
+          example: true
+        isPremium:
+          type: boolean
+          example: false
+        type:
+          type: string
+          example: apartment
+        previewImage:
+          type: string
+          example: img/1.jpg
+        city:
+          type: object
+          properties:
+            location:
+              type: object
+              properties:
+                latitude:
+                  type: number
+                  example: 52.370216
+                longitude:
+                  type: number
+                  example: 4.895168
+            name:
+              type: string
+              example: Amsterdam
+        commentsCount:
+          type: number
+          example: 2
+        createdDate:
+          type: number
+          example: 2019-05-08T14:13:56.569Z
+    offersPremium:
+      type: object
+      properties:
+        price:
+          type: number
+          example: 120
+        rating:
+          type: number
+          example: 3.5
+        title:
+          type: string
+          example: Beautiful & luxurious studio at great location
+        offerId:
+          type: number
+          example: 1
+        isFavorite:
+          type: boolean
+          example: true
+        isPremium:
+          type: boolean
+          example: true
+        type:
+          type: string
+          example: apartment
+        previewImage:
+          type: string
+          example: img/1.jpg
+        city:
+          type: object
+          properties:
+            location:
+              type: object
+              properties:
+                latitude:
+                  type: number
+                  example: 52.370216
+                longitude:
+                  type: number
+                  example: 4.895168
+            name:
+              type: string
+              example: Amsterdam
+        commentsCount:
+          type: number
+          example: 2
+        createdDate:
+          type: number
+          example: 2019-05-08T14:13:56.569Z
+    AuthInfo:
+      type: object
+      properties:
+        token:
+          type: string
+          example: T2xpdmVyLmNvbm5lckBnbWFpbC5jb20=
+    AuthErrorMessage:
+      type: object
+      properties:
+        error:
+          type: string
+          example: You are not logged in or you do not have permission to this page.
+    AuthModificationErrorMessage:
+      type: object
+      properties:
+        error:
+          type: string
+          example: You are not rights to make this operation.
+    NotFoundErrorMessage:
+      type: object
+      properties:
+        error:
+          type: string
+          example: Hotel id 999 does not exist
+    NotFoundPremiumErrorMessage:
+      type: object
+      properties:
+        error:
+          type: string
+          example: Premium offers not found
