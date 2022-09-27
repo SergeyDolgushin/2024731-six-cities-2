@@ -348,9 +348,8 @@ paths:
     get:
       tags:
         - offers
-      summary: Получить список предложений неподалёку
+      summary: Получить список премиальных предложений для города
       description: Возвращает массив из 3-х или менее предложений. Каждое предложение описано в виде объекта.
-      operationId: getHotelsNearby
       parameters:
       - name: cityName
         in: path

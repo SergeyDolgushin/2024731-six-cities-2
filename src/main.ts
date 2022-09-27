@@ -18,6 +18,9 @@ import { OfferServiceInterface } from './modules/offer/offer-service.interface.j
 import { CityServiceInterface } from './modules/city/city-service.interface.js';
 import CityService from './modules/city/city.service.js';
 import { CityEntity, CityModel } from './modules/city/city.entity.js';
+import CommentService from './modules/comments/comment.service.js';
+import {CommentServiceInterface} from './modules/comments/comment-service.interface.js';
+import {CommentEntity, CommentModel} from './modules/comments/comment.entity.js';
 
 const applicationContainer = new Container();
 applicationContainer.bind<Application>(Component.Application).to(Application).inSingletonScope();
@@ -30,6 +33,8 @@ applicationContainer.bind<OfferServiceInterface>(Component.OfferServiceInterface
 applicationContainer.bind<types.ModelType<OfferEntity>>(Component.OfferModel).toConstantValue(OfferModel);
 applicationContainer.bind<CityServiceInterface>(Component.CityServiceInterface).to(CityService);
 applicationContainer.bind<types.ModelType<CityEntity>>(Component.CityModel).toConstantValue(CityModel);
+applicationContainer.bind<CommentServiceInterface>(Component.CommentServiceInterface).to(CommentService).inSingletonScope();
+applicationContainer.bind<types.ModelType<CommentEntity>>(Component.CommentModel).toConstantValue(CommentModel);
 
 const application = applicationContainer.get<Application>(Component.Application);
 await application.init();
