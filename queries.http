@@ -2,3 +2,211 @@
 GET http://localhost:3123/api HTTP/1.1
 
 ###
+
+# Предложения
+## Получить массив предложений более 60
+
+GET http://localhost:5000/offers?offersCount=61 HTTP/1.1
+Content-Type: application/json
+
+###
+
+## Получить массив из 60 предложений
+
+GET http://localhost:5000/offers HTTP/1.1
+Content-Type: application/json
+
+###
+
+## Получить предложение по существующему инденификатору
+
+GET http://localhost:5000/offers/63315d39dde6f2dccddc2a95 HTTP/1.1
+Content-Type: application/json
+
+###
+
+## Получить предложение по инденификатору
+
+GET http://localhost:5000/offers/6339a588a08a2b4cbee48da8 HTTP/1.1
+Content-Type: application/json
+
+###
+
+## Получить премиальные предложения по городу
+
+GET http://localhost:5000/offers/6330703eb8b0577d4a49fc81/premium HTTP/1.1
+Content-Type: application/json
+
+###
+
+## Получить избранные предложения по городу без авторизации
+
+GET http://localhost:5000/favorite HTTP/1.1
+Content-Type: application/json
+
+###
+
+## Получить избранные предложения с авторизацией
+
+GET http://localhost:5000/favorite HTTP/1.1
+Content-Type: application/json
+x-auth: T2xpdmVyLmNvbm5lckBnbWFpbC5jb20=
+
+###
+
+## Изменить статус избранного предложения с авторизацией
+
+POST http://localhost:5000/favorite/6330703eb8b0577d4a49fc61/0 HTTP/1.1
+Content-Type: application/json
+x-auth: T2xpdmVyLmNvbm5lckBnbWFpbC5jb20=
+
+###
+
+## Изменить статус избранного предложения с авторизацией
+
+POST http://localhost:5000/favorite/6330703eb8b0577d4a49fc61/1 HTTP/1.1
+Content-Type: application/json
+x-auth: T2xpdmVyLmNvbm5lckBnbWFpbC5jb20=
+
+###
+
+## Изменить статус избранного предложения с авторизацией, статус некорректный
+
+POST http://localhost:5000/favorite/6330703eb8b0577d4a49fc61/2 HTTP/1.1
+Content-Type: application/json
+x-auth: T2xpdmVyLmNvbm5lckBnbWFpbC5jb20=
+
+###
+
+## Изменить статус избранного предложения с авторизацией, id города неккоректный
+
+POST http://localhost:5000/favorite/6330703e2220577d4a49fc61/2 HTTP/1.1
+Content-Type: application/json
+x-auth: T2xpdmVyLmNvbm5lckBnbWFpbC5jb20=
+
+###
+
+## Изменить статус избранного предложения без авторизации
+
+POST http://localhost:5000/favorite/6330703eb8b0577d4a49fc61/0 HTTP/1.1
+Content-Type: application/json
+
+###
+
+
+## Создать новое предложение
+
+POST http://localhost:5000/offers HTTP/1.1
+Content-Type: application/json
+x-auth: T2xpdmVyLmNvbm5lckBnbWFpbC5jb20=
+
+{
+  "price": 120,
+  "rating": 0,
+  "images": ["test.jpg"],
+  "title": "Beautiful & luxurious studio at great location",
+  "offerId": 100,
+  "isFavorite": false,
+  "isPremium": false,
+  "type": "apartment",
+  "previewImage": "img/1.jpg",
+  "location": {
+    "latitude": 52.370216,
+    "longitude": 4.895168
+  },
+  "city": "6330703eb8b0577d4a49fc5e",
+  "goods": [
+    "Heating"
+  ],
+  "maxAdults": 2,
+  "hostId": "6330703eb8b0577d4a49fc6a",
+  "description": "A quiet cozy and picturesque that hides behind a a river by the unique lightness of Amsterdam.",
+  "bedrooms": 2,
+  "commentsCount": 0,
+  "createdDate": "2019-05-08T14:13:56.569Z"
+}
+
+###
+
+## Редактировать предложение
+
+PATCH http://localhost:5000/offers/6339a588a08a2b4cbee48da8 HTTP/1.1
+Content-Type: application/json
+
+{
+  "price": "800"
+}
+
+###
+
+## Редактировать несуществующее предложение
+
+PATCH http://localhost:5000/offers/6339a588555a2b4cbee48da8 HTTP/1.1
+Content-Type: application/json
+
+{
+  "price": "600"
+}
+
+###
+
+## Удалить предложение
+
+DELETE  http://localhost:5000/offers/6339a588a08a2b4cbee48da8 HTTP/1.1
+Content-Type: application/json
+
+###
+
+
+# Пользователи
+## Регистрация пользователя
+
+POST http://localhost:5000/users/register HTTP/1.1
+Content-Type: application/json
+
+{
+  "email": "toran2@overlook.net",
+  "avatarUrl": "torrance.png",
+  "name": "Jack",
+  "isPro": false,
+  "password": "shining"
+}
+
+###
+
+## Авторизация пользователя
+
+POST http://localhost:5000/users/login HTTP/1.1
+Content-Type: application/json
+
+{
+  "email": "torans@overlook.net",
+  "password": "123456"
+}
+
+###
+
+## Авторизация незарегистрированного пользователя
+
+POST http://localhost:5000/users/login HTTP/1.1
+Content-Type: application/json
+
+{
+  "email": "toran6@overlook.net",
+  "password": "shining"
+}
+
+###
+
+## Проверка статуса пользователя
+
+GET  http://localhost:5000/users/login HTTP/1.1
+Content-Type: application/json
+x-auth: T2xpdmVyLmNvbm5lckBnbWFpbC5jb20=
+
+{
+  "email": "toran6@overlook.net",
+  "password": "shining"
+}
+
+###

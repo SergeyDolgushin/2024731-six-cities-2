@@ -1,4 +1,4 @@
-openapi: 3.1.0
+openapi: 3.0.0
 info:
   title: API сервер для демо-проекта «Шесть городов».
   description: |-
@@ -43,6 +43,10 @@ paths:
 
         "409":
           description: Пользователь с таким email уже существует.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserExist'
 
 
   /users/login:
@@ -169,7 +173,7 @@ paths:
       security:
         - tokenAuth: []
 
-  /offers/{offerCount}:
+  /offers{?offersCount=61}:
     get:
       tags:
         - offers
@@ -177,7 +181,7 @@ paths:
       description: По умолчанию возвращает массив из 60 предложений. Каждое предложение описано в виде объекта.
       parameters:
         - name: offerCount
-          in: path
+          in: query
           description: Необязательный параметр. Указывается, если надо получить более 60 предложений в ответе.
           required: false
           schema:
@@ -299,7 +303,7 @@ paths:
               application/json:
                 schema:
                   $ref: '#/components/schemas/AuthModificationErrorMessage'
-        "404":
+        "406":
           description: Предложение не найдено.
           content:
             application/json:
@@ -452,6 +456,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AuthErrorMessage'
+        '406':
+          description: Ошибка в параметрах
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RequestNotCorrect'
       security:
         - tokenAuth: []
 
@@ -664,41 +674,17 @@ components:
               type: number
               example: 4.895168
         city:
-          type: object
-          properties:
-            location:
-              type: object
-              properties:
-                latitude:
-                  type: number
-                  example: 52.370216
-                longitude:
-                  type: number
-                  example: 4.895168
-            name:
-              type: string
-              example: Amsterdam
+          type: string
+          example: 6330703eb8b0577d4a49fc5e
         goods:
           type: array
           example:  ["Heating"]
         maxAdults:
           type: number
           example: 2
-        host:
-          type: object
-          properties:
-            avatarUrl:
-              type: string
-              example: img/1.png
-            email:
-              type: string
-              example: alise@mail.ru,
-            isPro:
-              type: boolean
-              example: true
-            name:
-              type: string
-              example: Angelina
+        hostId:
+          type: string
+          example: 6330703eb8b0577d4a49fc5b
         description:
           type: string
           example: A quiet cozy and picturesque that hides behind a a river by the unique lightness of Amsterdam.
@@ -830,10 +816,22 @@ components:
       properties:
         error:
           type: string
-          example: Hotel id 999 does not exist
+          example: Offer 6330703eb8b0577d4a49fc5b not exist
     NotFoundPremiumErrorMessage:
       type: object
       properties:
         error:
           type: string
           example: Premium offers not found
+    UserExist:
+      type: object
+      properties:
+        error:
+          type: string
+          example: User with email torans@overlook.net exists.
+    RequestNotCorrect:
+      type: object
+      properties:
+        error:
+          type: string
+          example: Status must be equal 0 or 1, or city is not exist.
