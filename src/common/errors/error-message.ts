@@ -7,11 +7,3 @@ export const sendUnauthError = () => {
     'You are not logged in or you do not have permission to this page.',
   );
 };
-
-
-export const objectNotExist = (info: string) => {
-  throw new HttpError(
-    StatusCodes.NOT_ACCEPTABLE,
-    `Offer "${info}" not exists.`,
-  );
-};

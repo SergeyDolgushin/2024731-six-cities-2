@@ -12,7 +12,8 @@ import {fillDTO} from '../../utils/common.js';
 import UserResponse from './response/user.response.js';
 import {ConfigInterface} from '../../common/config/config.interface.js';
 import LoginUserDto from './dto/login-user.dto.js';
-import { sendUnauthError } from '../../common/errors/error-message.js';
+import {ValidateDtoMiddleware} from '../../common/middlewares/validate-dto.middleware.js';
+import {DocumentExistsMiddleware} from '../../common/middlewares/document-exists.middleware.js';
 
 @injectable()
 export default class UserController extends Controller {
@@ -24,8 +25,21 @@ export default class UserController extends Controller {
     super(logger);
     this.logger.info('Register routes for UserController…');
 
-    this.addRoute({path: '/register', method: HttpMethod.Post, handler: this.create});
-    this.addRoute({path: '/login', method: HttpMethod.Post, handler: this.login});
+    this.addRoute({
+      path: '/register',
+      method: HttpMethod.Post,
+      handler: this.create,
+      middlewares: [new ValidateDtoMiddleware(CreateUserDto)]
+    });
+    this.addRoute({
+      path: '/login',
+      method: HttpMethod.Post,
+      handler: this.login,
+      middlewares: [
+        new ValidateDtoMiddleware(LoginUserDto),
+        new DocumentExistsMiddleware(this.userService, 'email', 'email', true)
+      ]
+    });
     this.addRoute({path: '/login', method: HttpMethod.Get, handler: this.checkAuthStatus});
   }
 
@@ -55,15 +69,10 @@ export default class UserController extends Controller {
     {body}: Request<Record<string, unknown>, Record<string, unknown>, LoginUserDto>,
     _res: Response,
   ): Promise<void> {
-    const existsUser = await this.userService.findByEmail(body.email);
-
-    if (!existsUser) {
-      sendUnauthError();
-    }
 
     throw new HttpError(
       StatusCodes.NOT_IMPLEMENTED,
-      'Not implemented',
+      `Not implemented - body: ${body}`,
       'UserController',
     );
   }

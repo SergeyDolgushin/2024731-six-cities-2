@@ -36,4 +36,9 @@ export default class CityService implements CityServiceInterface {
 
     return this.create(dto);
   }
+
+  public async exists(documentId: string): Promise<boolean> {
+    return (await this.cityModel
+      .exists({_id: documentId})) !== null;
+  }
 }

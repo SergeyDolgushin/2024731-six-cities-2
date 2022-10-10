@@ -7,8 +7,7 @@ import {OfferServiceInterface} from './offer-service.interface.js';
 import {LoggerInterface} from '../../common/logger/logger.interface.js';
 import {Component} from '../../types/component.types.js';
 import UpdateOfferDto from './dto/update-offer.dto.js';
-import { DEFAULT_OFFER_COUNT, DEFAULT_PREMIUM_OFFER_COUNT, SortType } from './offer-constant.js';
-
+import { DEFAULT_COUNT, DEFAULT_OFFER_COUNT, DEFAULT_PREMIUM_OFFER_COUNT, DEFAULT_RATING, SortType } from './offer-constant.js';
 
 @injectable()
 export default class OfferService implements OfferServiceInterface {
@@ -76,10 +75,18 @@ export default class OfferService implements OfferServiceInterface {
   }
 
   public async changeCommentCountAndRating(offerId: string, rating: number): Promise<DocumentType<OfferEntity> | null> {
+    const currentOffer = await this.offerModel.findById(offerId).exec();
+    const currentRating = (currentOffer) ? (currentOffer.rating) : DEFAULT_RATING;
+    const currentCount = (currentOffer) ? (currentOffer.commentsCount) : DEFAULT_COUNT;
+
     return this.offerModel
-      .findByIdAndUpdate(offerId, {'$inc': {
-        commentCount: 1,
-      },
-      rating: rating}).exec();
+      .findByIdAndUpdate(offerId, {
+        '$inc': {commentsCount: 1},
+        rating: ((currentRating * currentCount) + rating) / (currentCount + 1)}).exec();
+  }
+
+  public async exists(documentId: string): Promise<boolean> {
+    return (await this.offerModel
+      .exists({_id: documentId})) !== null;
   }
 }

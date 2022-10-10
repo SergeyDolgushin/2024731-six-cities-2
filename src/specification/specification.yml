@@ -374,13 +374,18 @@ paths:
                   allOf:
                     - $ref: '#/components/schemas/offersPremium'
                     - type: object
+        "400":
+          description: Некорректный ID города.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotExistPremiumErrorMessage'
         "404":
-          description: Предложение не найдено.
+          description: Города с таким ID не существует.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/NotFoundPremiumErrorMessage'
-
   /favorite:
     get:
       tags:
@@ -450,8 +455,20 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/offers'
+        '400':
+          description: Некорректный id предложения
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotExistFavoriteErrorMessage'
         '401':
           description: Пользователь не авторизован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundFavoriteErrorMessage'
+        '404':
+          description: Предложение не найдено
           content:
             application/json:
               schema:
@@ -817,12 +834,18 @@ components:
         error:
           type: string
           example: Offer 6330703eb8b0577d4a49fc5b not exist
+    NotExistPremiumErrorMessage:
+      type: object
+      properties:
+        error:
+          type: string
+          example: Object with 6330703eb8b0577d4a49fc811 not exist
     NotFoundPremiumErrorMessage:
       type: object
       properties:
         error:
           type: string
-          example: Premium offers not found
+          example: Object with 6330703eb8b0577d4a49fc811 not found
     UserExist:
       type: object
       properties:
@@ -835,3 +858,15 @@ components:
         error:
           type: string
           example: Status must be equal 0 or 1, or city is not exist.
+    NotExistFavoriteErrorMessage:
+      type: object
+      properties:
+        error:
+          type: string
+          example: Object with 6330703eb8b0577d4a49fc811 not exist
+    NotFoundFavoriteErrorMessage:
+      type: object
+      properties:
+        error:
+          type: string
+          example: Object with 6330703eb8b0577d4a49fc811 not found

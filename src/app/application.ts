@@ -22,6 +22,7 @@ export default class Application {
     @inject(Component.OfferFavoriteController) private offerFavoriteController: ControllerInterface,
     @inject(Component.ExceptionFilterInterface) private exceptionFilter: ExceptionFilterInterface,
     @inject(Component.UserController) private userController: ControllerInterface,
+    @inject(Component.CommentController) private commentController: ControllerInterface,
   ) {
     this.expressApp = express();
   }
@@ -30,6 +31,7 @@ export default class Application {
     this.expressApp.use('/offers', this.offerController.router);
     this.expressApp.use('/favorite', this.offerFavoriteController.router);
     this.expressApp.use('/users', this.userController.router);
+    this.expressApp.use('/comments', this.commentController.router);
   }
 
   public initMiddleware() {
@@ -59,13 +61,14 @@ export default class Application {
     this.initMiddleware();
     this.registerRoutes();
     this.initExceptionFilters();
-    this.expressApp.listen(this.config.get('PORT'));
-    this.logger.info(`Server started on http://localhost:${this.config.get('PORT')}`);
-
-    this.expressApp.get('/', (_req, res) => {
-      this.logger.info(_req.hostname);
-      res.send('Hello');
-    });
+    this.expressApp
+      .listen(this.config.get('PORT'))
+      .on('listening',()=>{
+        this.logger.info(`Server started on http://localhost:${this.config.get('PORT')}`);
+      })
+      .on('error',(err)=>{
+        this.logger.info(`Server error: ${err}`);
+      });
 
   }
 }

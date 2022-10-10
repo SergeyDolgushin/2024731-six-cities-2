@@ -5,7 +5,7 @@ import { HostResponse } from './host.response.js';
 // import { UserType } from '../../../types/user-type.js';
 
 export class OfferResponse {
-  @Expose({name: '_id'})
+  @Expose({name: 'id'})
   public offerId!: string;
 
   @Expose()
@@ -29,11 +29,11 @@ export class OfferResponse {
   @Expose()
   public previewImage!: string;
 
-  @Expose()
+  @Expose({ name: 'city'})
   @Type(() => CityResponse)
   public city!: CityResponse;
 
-  @Expose()
+  @Expose({ name: 'hostId'})
   @Type(() => HostResponse)
   public hostId!: HostResponse;
 

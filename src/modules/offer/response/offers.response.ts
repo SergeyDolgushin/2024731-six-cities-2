@@ -2,7 +2,7 @@ import {Expose, Type} from 'class-transformer';
 import { CityResponse } from './city.response.js';
 
 export class OffersResponse {
-  @Expose({name: '_id'})
+  @Expose({name: 'id'})
   public offerId!: string;
 
   @Expose()
@@ -26,7 +26,7 @@ export class OffersResponse {
   @Expose()
   public previewImage!: string;
 
-  @Expose()
+  @Expose({ name: 'city'})
   @Type(() => CityResponse)
   public city!: CityResponse;
 
