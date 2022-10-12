@@ -126,7 +126,7 @@ paths:
       security:
         - tokenAuth: []
 
-  /users/{login}/avatar:
+  /users/{:email}/avatar:
     post:
       tags:
         - users
@@ -141,9 +141,9 @@ paths:
           schema:
             type: string
             example: T2xpdmVyLmNvbm5lckBnbWFpbC5jb20=
-        - name: login
+        - name: email
           in: path
-          description: Необязательный параметр. Указывается, если надо получить более 60 предложений в ответе.
+          description: email пользователя
           required: true
           schema:
             type: string
