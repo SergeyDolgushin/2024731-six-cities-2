@@ -251,3 +251,15 @@ GET http://localhost:5000/offers/6330703eb8b0577d4a49fc91/comments HTTP/1.1
 GET http://localhost:5000/offers/6330703eb8b0577d4a49fc671/comments HTTP/1.1
 
 ###
+
+## Отправка аватарки пользователю
+
+POST http://localhost:5000/users/tor@overlook.net/avatar HTTP/1.1
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="avatar"; filename="screen.png"
+Content-Type: image/png
+
+< C:\Users\serge\OneDrive\Рабочий стол\HTMLAcademy\2024731-six-cities-2\markup\img\amsterdam.jpg
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
