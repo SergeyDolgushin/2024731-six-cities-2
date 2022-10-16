@@ -25,8 +25,8 @@ export default class CreateOfferDto {
 
   public offerId!: number;
 
-  @IsBoolean()
-  public isFavorite!: boolean;
+  @IsArray({ message: 'Features must be an array' })
+  public isFavorite!: string[];
 
   @IsBoolean()
   public isPremium!: boolean;
@@ -52,7 +52,6 @@ export default class CreateOfferDto {
   @Max(MAX_ADULTS, {message: `Maximum adults is ${MAX_ADULTS}`})
   public maxAdults!: number;
 
-  @IsMongoId({message: 'hostId field must be valid an id'})
   public hostId!: string;
 
   @MinLength(MIN_DESCRIPTION, {message: `Minimum description length must be ${MIN_DESCRIPTION}`})

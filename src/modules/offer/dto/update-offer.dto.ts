@@ -1,11 +1,12 @@
 import { LocationType } from '../../../types/offer-type.js';
-import {ArrayMaxSize, ArrayMinSize, IsArray, IsBoolean, IsDateString, IsEnum, IsInt, IsMongoId, Matches, Max, MaxLength, Min, MinLength, Validate} from 'class-validator';
+import {ArrayMaxSize, ArrayMinSize, IsArray, IsBoolean, IsDateString, IsEnum,
+  IsInt, IsMongoId, Matches, Max, MaxLength, Min, MinLength, Validate} from 'class-validator';
 import { GoodsType } from '../../../types/goods-types.enum.js';
 import { HouseType } from '../../../types/house-types.enum.js';
 import LocationValidator from '../../../common/validator/location-validator.js';
-import { MAX_ADULTS, MAX_DESCRIPTION, MAX_PRICE, MAX_RATING, MAX_ROOMS, MAX_TITLE,
-  MIN_ADULTS, MIN_DESCRIPTION, MIN_PRICE, MIN_RATING, MIN_ROOMS, MIN_TITLE,
-  PHOTOS_LENGTH } from '../offer-constant.js';
+import { MAX_ADULTS, MAX_DESCRIPTION, MAX_PRICE, MAX_ROOMS, MAX_TITLE,
+  MIN_ADULTS, MIN_DESCRIPTION, MIN_PRICE, MIN_ROOMS, MIN_TITLE, PHOTOS_LENGTH } from '../offer-constant.js';
+import { MAX_RATING, MIN_RATING } from '../../comments/comment-constants.js';
 
 export default class CreateOfferDto {
   @IsInt({message: 'Price must be an integer'})
@@ -29,8 +30,8 @@ export default class CreateOfferDto {
 
   public offerId?: number;
 
-  @IsBoolean()
-  public isFavorite?: boolean;
+  @IsMongoId({message: 'isFavorite field must be valid an id'})
+  public isFavorite?: string[];
 
   @IsBoolean()
   public isPremium?: boolean;

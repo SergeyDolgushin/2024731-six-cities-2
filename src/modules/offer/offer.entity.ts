@@ -31,7 +31,7 @@ export class OfferEntity extends defaultClasses.TimeStamps {
   public offerId!: number;
 
   @prop({required: true})
-  public isFavorite!: boolean;
+  public isFavorite!: string[];
 
   @prop({required: true})
   public isPremium!: boolean;
@@ -74,6 +74,9 @@ export class OfferEntity extends defaultClasses.TimeStamps {
 
   @prop({required: true})
   public createdDate!: Date;
+
+  @prop({required: false})
+  public uid?: string;
 }
 
 export const OfferModel = getModelForClass(OfferEntity);

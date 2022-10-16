@@ -56,13 +56,13 @@ paths:
       summary: Проверка состояния пользователя
       description: Проверка состояния клиента — авторизован или нет. Осуществляется на основании токена.
       parameters:
-        - name: X-Token
+        - name: tokenAuth
           in: header
-          description: Авторизационный токен пользователя
+          description: JWT токен пользователя
           required: true
           schema:
             type: string
-            example: T2xpdmVyLmNvbm5lckBnbWFpbC5jb20=
+            example: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InRvckBvdmVybG9vay5uZXQiLCJpZCI6IjYzNDQzZWE2ZjkzOTMxODY3NTM2MDdlOSIsImlhdCI6MTY2NTkwNzIzMCwiZXhwIjoxNjY2MDgwMDMwfQ.LteLHrNb1qXmC1rwsDOnOPX_Kied6aLt4y18D7SuTy4
       responses:
         '200':
           description: Статус авторизации пользователя
@@ -815,7 +815,10 @@ components:
       properties:
         token:
           type: string
-          example: T2xpdmVyLmNvbm5lckBnbWFpbC5jb20=
+          example: eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InRvckBvdmVybG9vay5uZXQiLCJpZCI6IjYzNDQzZWE2ZjkzOTMxODY3NTM2MDdlOSIsImlhdCI6MTY2NTkwOTk5MCwiZXhwIjoxNjY2MDgyNzkwfQ.cw2qBKNIA2oRLpB_g4bQ-acmSHGqwYOwkrxtsEggn-k
+        email:
+          type: string
+          example: tor@overlook.net
     AuthErrorMessage:
       type: object
       properties:

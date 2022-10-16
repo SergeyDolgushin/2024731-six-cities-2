@@ -21,6 +21,7 @@ export class UserEntity extends defaultClasses.TimeStamps implements UserType {
     this.avatarUrl = data.avatarUrl;
     this.name = data.name;
     this.isPro = data.isPro;
+    this.favorites = [];
   }
 
   @prop({ unique: true, required: true })
@@ -43,8 +44,19 @@ export class UserEntity extends defaultClasses.TimeStamps implements UserType {
     return this.password;
   }
 
+  public verifyPassword(password: string, salt: string) {
+    const hashPassword = createSHA256(password, salt);
+    return hashPassword === this.password;
+  }
+
   @prop()
   public isPro!: boolean;
+
+  @prop({
+    required: true,
+    default: [],
+  })
+  public favorites!: string[];
 }
 
 export const UserModel = getModelForClass(UserEntity);

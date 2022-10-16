@@ -1,10 +1,7 @@
-import {Exclude, Expose, Transform, Type} from 'class-transformer';
+import {Expose, Transform, Type} from 'class-transformer';
 import { CityResponse } from './city.response.js';
 
-export class OffersResponse {
-  @Exclude()
-  public uid?: string;
-
+export class FavoriteOffersResponse {
   @Expose({name: 'id'})
   public offerId!: string;
 
@@ -18,9 +15,9 @@ export class OffersResponse {
   public title!: string;
 
   @Expose({name: 'isFavorite'})
-  @Type(() => String)
-  @Transform(({ value, obj  }) => value.includes(obj.uid), { toClassOnly: true })
-  public isFavorite!: string;
+  // @Type(() => string[])
+  @Transform(({ value, obj  }) => value.includes(obj.hostId.id), { toClassOnly: true })
+  public isFavorite!: boolean;
 
   @Expose()
   public isPremium!: boolean;

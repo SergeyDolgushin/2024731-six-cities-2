@@ -18,7 +18,7 @@ export class OfferResponse {
   public title!: string;
 
   @Expose()
-  public isFavorite!: boolean;
+  public isFavorite!: string[];
 
   @Expose()
   public isPremium!: boolean;

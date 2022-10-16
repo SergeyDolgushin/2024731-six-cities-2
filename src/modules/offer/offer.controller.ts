@@ -11,13 +11,13 @@ import {OfferResponse} from './response/offer.response.js';
 import CreateOfferDto from './dto/create-offer.dto.js';
 import UpdateOfferDto from './dto/update-offer.dto.js';
 import {fillDTO} from '../../utils/common.js';
-import { sendUnauthError } from '../../common/errors/error-message.js';
 import {CommentServiceInterface} from '../comments/comment-service.interface.js';
 import CommentResponse from '../comments/response/comment.response.js';
 import { ValidateObjectIdMiddleware } from '../../common/middlewares/validate-objectid.middleware.js';
 import { ValidateDtoMiddleware } from '../../common/middlewares/validate-dto.middleware.js';
 import {DocumentExistsMiddleware} from '../../common/middlewares/document-exists.middleware.js';
 import { CityServiceInterface } from '../city/city-service.interface.js';
+import {PrivateRouteMiddleware} from '../../common/middlewares/private-route.middleware.js';
 
 type ParamsGetOffer = {
   offersId: string;
@@ -58,13 +58,16 @@ export default class OfferController extends Controller {
       path: '/',
       method: HttpMethod.Post,
       handler: this.create,
-      middlewares: [new ValidateDtoMiddleware(CreateOfferDto)]
+      middlewares: [
+        new PrivateRouteMiddleware(),
+        new ValidateDtoMiddleware(CreateOfferDto)]
     });
     this.addRoute({
       path: '/:offersId',
       method: HttpMethod.Patch,
       handler: this.changeOffer,
       middlewares: [
+        new PrivateRouteMiddleware(),
         new ValidateObjectIdMiddleware('offersId'),
         new DocumentExistsMiddleware(this.offerService, 'Offer', 'offersId', false)
       ]
@@ -74,6 +77,7 @@ export default class OfferController extends Controller {
       method: HttpMethod.Delete,
       handler: this.deleteOffer,
       middlewares: [
+        new PrivateRouteMiddleware(),
         new ValidateObjectIdMiddleware('offersId'),
         new DocumentExistsMiddleware(this.offerService, 'Offer', 'offersId', false)
       ]
@@ -91,7 +95,10 @@ export default class OfferController extends Controller {
 
   public async index(req: Request, res: Response): Promise<void> {
     const offers = await this.offerService.find(String(req.query['offersCount']));
-    const offersResponse = fillDTO(OffersResponse, offers);
+    offers.forEach((offer) => {
+      offer.uid = String(req.user.id);
+    });
+    const offersResponse = fillDTO(OffersResponse, [...offers]);
     this.ok(res, offersResponse);
   }
 
@@ -110,14 +117,10 @@ export default class OfferController extends Controller {
   }
 
   public async create(
-    {headers, body}: Request<Record<string, unknown>, Record<string, unknown>, CreateOfferDto>,
+    {body, user}: Request<Record<string, unknown>, Record<string, unknown>, CreateOfferDto>,
     res: Response): Promise<void> {
 
-    if (!headers['x-auth']) {
-      sendUnauthError();
-    }
-
-    const result = await this.offerService.create(body);
+    const result = await this.offerService.create({...body, hostId: user.id});
     this.created(
       res,
       fillDTO(OfferResponse, result)

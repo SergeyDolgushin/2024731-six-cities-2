@@ -8,13 +8,16 @@ import CreateUserDto from './dto/create-user.dto.js';
 import {UserServiceInterface} from './user-service.interface.js';
 import HttpError from '../../common/errors/http-error.js';
 import {StatusCodes} from 'http-status-codes';
-import {fillDTO} from '../../utils/common.js';
+import {createJWT, fillDTO} from '../../utils/common.js';
 import UserResponse from './response/user.response.js';
 import {ConfigInterface} from '../../common/config/config.interface.js';
 import LoginUserDto from './dto/login-user.dto.js';
 import {ValidateDtoMiddleware} from '../../common/middlewares/validate-dto.middleware.js';
 import {DocumentExistsMiddleware} from '../../common/middlewares/document-exists.middleware.js';
 import {UploadFileMiddleware} from '../../common/middlewares/upload-file.middleware.js';
+import LoggedUserResponse from './response/logged-user.response.js';
+import {JWT_ALGORITM} from './user-constants.js';
+import {PrivateRouteMiddleware} from '../../common/middlewares/private-route.middleware.js';
 
 @injectable()
 export default class UserController extends Controller {
@@ -24,7 +27,7 @@ export default class UserController extends Controller {
     @inject(Component.ConfigInterface) private readonly configService: ConfigInterface,
   ) {
     super(logger);
-    this.logger.info('Register routes for UserController…');
+    this.logger.info('Register routes for UserController...');
 
     this.addRoute({
       path: '/register',
@@ -38,15 +41,23 @@ export default class UserController extends Controller {
       handler: this.login,
       middlewares: [
         new ValidateDtoMiddleware(LoginUserDto),
-        new DocumentExistsMiddleware(this.userService, 'email', 'email', true)
+        new DocumentExistsMiddleware(this.userService, 'email', 'email', true),
       ]
     });
-    this.addRoute({path: '/login', method: HttpMethod.Get, handler: this.checkAuthStatus});
+    this.addRoute({
+      path: '/login',
+      method: HttpMethod.Get,
+      handler: this.checkAuthStatus,
+      middlewares: [
+        new PrivateRouteMiddleware(),
+      ]
+    });
     this.addRoute({
       path: '/:email/avatar',
       method: HttpMethod.Post,
       handler: this.uploadAvatar,
       middlewares: [
+        new PrivateRouteMiddleware(),
         new DocumentExistsMiddleware(this.userService, 'email', 'email', false),
         new UploadFileMiddleware(this.configService.get('UPLOAD_DIRECTORY'), 'avatar'),
       ]
@@ -77,25 +88,32 @@ export default class UserController extends Controller {
 
   public async login(
     {body}: Request<Record<string, unknown>, Record<string, unknown>, LoginUserDto>,
-    _res: Response,
+    res: Response,
   ): Promise<void> {
+    const user = await this.userService.verifyUser(body, this.configService.get('SALT'));
 
-    throw new HttpError(
-      StatusCodes.NOT_IMPLEMENTED,
-      `Not implemented - body: ${body}`,
-      'UserController',
+    if (! user) {
+      throw new HttpError(
+        StatusCodes.UNAUTHORIZED,
+        'Unauthorized',
+        'UserController'
+      );
+    }
+
+    const token = await createJWT(
+      JWT_ALGORITM,
+      this.configService.get('JWT_SECRET'),
+      { email: user.email, id: user.id}
     );
+
+    this.ok(res, fillDTO(LoggedUserResponse, {email: user.email, token}));
+
   }
 
-  public async checkAuthStatus(
-    {headers}: Request<Record<string, unknown>, Record<string, unknown>, LoginUserDto>,
-    _res: Response,
-  ): Promise<void> {
-    throw new HttpError(
-      StatusCodes.NOT_IMPLEMENTED,
-      `Not implemented now. Your token is ${headers['x-auth']}`,
-      'UserController',
-    );
+  public async checkAuthStatus(req: Request, res: Response) {
+    const user = await this.userService.findByEmail(req.user.email);
+
+    this.ok(res, fillDTO(LoggedUserResponse, user));
   }
 
   public async uploadAvatar(req: Request, res: Response) {

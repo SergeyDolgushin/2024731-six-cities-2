@@ -7,9 +7,11 @@ import {HttpMethod} from '../../types/http-method.enum.js';
 import { OfferServiceInterface } from './offer-service.interface.js';
 import {StatusCodes} from 'http-status-codes';
 import HttpError from '../../common/errors/http-error.js';
-import { sendUnauthError } from '../../common/errors/error-message.js';
 import { ValidateObjectIdMiddleware } from '../../common/middlewares/validate-objectid.middleware.js';
 import {DocumentExistsMiddleware} from '../../common/middlewares/document-exists.middleware.js';
+import {PrivateRouteMiddleware} from '../../common/middlewares/private-route.middleware.js';
+import { fillDTO } from '../../utils/common.js';
+import {OffersResponse} from './response/offers.response.js';
 
 
 @injectable()
@@ -22,12 +24,20 @@ export default class OfferFavoriteController extends Controller {
 
     this.logger.info('Register routes for OfferController...');
 
-    this.addRoute({path: '/', method: HttpMethod.Get, handler: this.getFavoriteOffer});
+    this.addRoute({
+      path: '/',
+      method: HttpMethod.Get,
+      handler: this.getFavoriteOffer,
+      middlewares: [
+        new PrivateRouteMiddleware(),
+      ]
+    });
     this.addRoute({
       path: '/:offerId/:status',
       method: HttpMethod.Post,
       handler: this.changeFavoriteStatus,
       middlewares: [
+        new PrivateRouteMiddleware(),
         new ValidateObjectIdMiddleware('offerId'),
         new DocumentExistsMiddleware(this.offerService, 'Offer', 'offerId', false)
       ]
@@ -35,25 +45,19 @@ export default class OfferFavoriteController extends Controller {
   }
 
   public async getFavoriteOffer(req: Request, res: Response): Promise<void> {
-    const token = req.headers['x-auth'];
 
-    if (!token) {
-      sendUnauthError();
-    }
+    const offers = await this.offerService.findFavorites(String(req.user.id));
+    offers.forEach((offer) => {
+      offer.uid = String(req.user.id);
+    });
 
-    const offers = await this.offerService.findFavorites();
-    this.ok(res, offers);
+    this.ok(res, fillDTO(OffersResponse, offers));
   }
 
   public async changeFavoriteStatus(req: Request, res: Response): Promise<void> {
-    const token = req.headers['x-auth'];
     const offerId = req.params['offerId'];
     const newStatus = Number(req.params['status']);
-    // const existOffer = await this.offerService.findByOfferId(offerId);
-
-    if (!token) {
-      sendUnauthError();
-    }
+    const userId = String(req.user.id);
 
     if ((newStatus !== 0 && newStatus !== 1)) {
       throw new HttpError(
@@ -62,8 +66,11 @@ export default class OfferFavoriteController extends Controller {
       );
     }
 
-    const offer = await this.offerService.updateFavoriteStatus(offerId, newStatus);
-    this.ok(res, offer);
+    const offer = await this.offerService.updateFavoriteStatus(offerId, newStatus, userId);
+    if (offer) {
+      offer.uid = userId;
+    }
+    this.ok(res, fillDTO(OffersResponse, offer));
   }
 
 }

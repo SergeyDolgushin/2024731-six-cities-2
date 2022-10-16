@@ -3,4 +3,5 @@ export type UserType = {
   email: string;
   avatarUrl: string;
   isPro: boolean;
+  favorites?: string[];
 };

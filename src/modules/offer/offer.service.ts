@@ -13,7 +13,7 @@ import { DEFAULT_COUNT, DEFAULT_OFFER_COUNT, DEFAULT_PREMIUM_OFFER_COUNT, DEFAUL
 export default class OfferService implements OfferServiceInterface {
   constructor(
     @inject(Component.LoggerInterface) private logger: LoggerInterface,
-    @inject(Component.OfferModel) private readonly offerModel: types.ModelType<OfferEntity>
+    @inject(Component.OfferModel) private readonly offerModel: types.ModelType<OfferEntity>,
   ) {}
 
   public async create(dto: CreateOfferDto): Promise<DocumentType<OfferEntity>> {
@@ -60,19 +60,30 @@ export default class OfferService implements OfferServiceInterface {
       .exec();
   }
 
-  public async findFavorites(): Promise<DocumentType<OfferEntity>[]> {
+  public async findFavorites(hostId: string): Promise<DocumentType<OfferEntity>[]> {
     return this.offerModel
-      .find({isFavorite: true})
+      .find({isFavorite: hostId})
       .populate(['hostId', 'city'])
       .exec();
   }
 
-  public async updateFavoriteStatus(offerId: string, status: number): Promise<DocumentType<OfferEntity> | null> {
-    return this.offerModel
-      .findByIdAndUpdate(offerId, {isFavorite: Boolean(status)}, {new: true})
-      .populate(['hostId', 'city'])
-      .exec();
+  public async updateFavoriteStatus(offerId: string, status: number, hostId: string): Promise<DocumentType<OfferEntity> | null> {
+    if (status) {
+
+      return this.offerModel
+        .findByIdAndUpdate(offerId, {$push: {isFavorite: hostId}}, {new: true})
+        .populate(['hostId', 'city'])
+        .exec();
+    } else {
+
+      return this.offerModel
+        .findByIdAndUpdate(offerId, {$pull: {isFavorite: hostId}}, {new: true})
+        .populate(['hostId', 'city'])
+        .exec();
+    }
+
   }
+
 
   public async changeCommentCountAndRating(offerId: string, rating: number): Promise<DocumentType<OfferEntity> | null> {
     const currentOffer = await this.offerModel.findById(offerId).exec();
