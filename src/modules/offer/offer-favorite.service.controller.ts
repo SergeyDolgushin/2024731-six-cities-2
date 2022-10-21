@@ -12,6 +12,7 @@ import {DocumentExistsMiddleware} from '../../common/middlewares/document-exists
 import {PrivateRouteMiddleware} from '../../common/middlewares/private-route.middleware.js';
 import { fillDTO } from '../../utils/common.js';
 import {OffersResponse} from './response/offers.response.js';
+import { ConfigInterface } from '../../common/config/config.interface.js';
 
 
 @injectable()
@@ -19,8 +20,9 @@ export default class OfferFavoriteController extends Controller {
   constructor(
       @inject(Component.LoggerInterface) logger: LoggerInterface,
       @inject(Component.OfferServiceInterface) private readonly offerService: OfferServiceInterface,
+      @inject(Component.ConfigInterface) configService: ConfigInterface,
   ) {
-    super(logger);
+    super(logger, configService);
 
     this.logger.info('Register routes for OfferController...');
 
@@ -48,7 +50,7 @@ export default class OfferFavoriteController extends Controller {
 
     const offers = await this.offerService.findFavorites(String(req.user.id));
     offers.forEach((offer) => {
-      offer.uid = String(req.user.id);
+      offer.currentUserId = String(req.user.id);
     });
 
     this.ok(res, fillDTO(OffersResponse, offers));
@@ -68,7 +70,7 @@ export default class OfferFavoriteController extends Controller {
 
     const offer = await this.offerService.updateFavoriteStatus(offerId, newStatus, userId);
     if (offer) {
-      offer.uid = userId;
+      offer.currentUserId = userId;
     }
     this.ok(res, fillDTO(OffersResponse, offer));
   }

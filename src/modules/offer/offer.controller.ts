@@ -18,6 +18,12 @@ import { ValidateDtoMiddleware } from '../../common/middlewares/validate-dto.mid
 import {DocumentExistsMiddleware} from '../../common/middlewares/document-exists.middleware.js';
 import { CityServiceInterface } from '../city/city-service.interface.js';
 import {PrivateRouteMiddleware} from '../../common/middlewares/private-route.middleware.js';
+import { ConfigInterface } from '../../common/config/config.interface.js';
+import {UploadFileMiddleware} from '../../common/middlewares/upload-file.middleware.js';
+import UploadImagesResponse from './response/upload-image.response.js';
+import UploadPreviewImageResponse from './response/upload-preview.response.js';
+
+const NO_AUTH_USER = '0';
 
 type ParamsGetOffer = {
   offersId: string;
@@ -29,9 +35,10 @@ export default class OfferController extends Controller {
       @inject(Component.LoggerInterface) logger: LoggerInterface,
       @inject(Component.OfferServiceInterface) private readonly offerService: OfferServiceInterface,
       @inject(Component.CityServiceInterface) private readonly cityService: CityServiceInterface,
-      @inject(Component.CommentServiceInterface) private readonly commentService: CommentServiceInterface
+      @inject(Component.CommentServiceInterface) private readonly commentService: CommentServiceInterface,
+      @inject(Component.ConfigInterface) configService: ConfigInterface,
   ) {
-    super(logger);
+    super(logger, configService);
 
     this.logger.info('Register routes for OfferController...');
 
@@ -91,12 +98,33 @@ export default class OfferController extends Controller {
         new DocumentExistsMiddleware(this.offerService, 'Offer', 'offersId', false),
       ]
     });
+    this.addRoute({
+      path: '/:offersId/image',
+      method: HttpMethod.Post,
+      handler: this.uploadImages,
+      middlewares: [
+        new PrivateRouteMiddleware(),
+        new ValidateObjectIdMiddleware('offersId'),
+        new UploadFileMiddleware(this.configService.get('UPLOAD_DIRECTORY'), 'img', true),
+      ]
+    });
+    this.addRoute({
+      path: '/:offersId/preview',
+      method: HttpMethod.Post,
+      handler: this.uploadPreview,
+      middlewares: [
+        new PrivateRouteMiddleware(),
+        new ValidateObjectIdMiddleware('offersId'),
+        new UploadFileMiddleware(this.configService.get('UPLOAD_DIRECTORY'), 'img'),
+      ]
+    });
   }
 
   public async index(req: Request, res: Response): Promise<void> {
     const offers = await this.offerService.find(String(req.query['offersCount']));
+    const currentUserId = (req.user) ? req.user.id : NO_AUTH_USER;
     offers.forEach((offer) => {
-      offer.uid = String(req.user.id);
+      offer.currentUserId = currentUserId;
     });
     const offersResponse = fillDTO(OffersResponse, [...offers]);
     this.ok(res, offersResponse);
@@ -152,5 +180,20 @@ export default class OfferController extends Controller {
 
     const comments = await this.commentService.findByOfferId(params.offersId);
     this.ok(res, fillDTO(CommentResponse, comments));
+  }
+
+  public async uploadImages(req: Request<core.ParamsDictionary | ParamsGetOffer, object, object>,
+    res: Response) {
+    const updateDto = {images: (req.files as Express.Multer.File[])?.map(({filename}) => filename)};
+    await this.offerService.updateById(String(req.params['offersId']), updateDto);
+    this.created(res, fillDTO(UploadImagesResponse, updateDto));
+  }
+
+  public async uploadPreview(req: Request<core.ParamsDictionary | ParamsGetOffer, object, object>,
+    res: Response) {
+
+    const updateDto = {previewImage: req.file?.filename};
+    await this.offerService.updateById(String(req.params['offersId']), updateDto);
+    this.created(res, fillDTO(UploadPreviewImageResponse, updateDto));
   }
 }

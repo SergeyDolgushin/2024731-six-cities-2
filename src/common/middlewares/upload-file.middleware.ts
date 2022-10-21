@@ -9,6 +9,7 @@ export class UploadFileMiddleware implements MiddlewareInterface {
   constructor(
     private uploadDirectory: string,
     private fieldName: string,
+    private isArray: boolean = false
   ) {
   }
 
@@ -22,7 +23,12 @@ export class UploadFileMiddleware implements MiddlewareInterface {
       },
     });
 
-    const uploadSingleFileMiddleware = multer({ storage }).single(this.fieldName);
-    uploadSingleFileMiddleware(req, res, next);
+    if (!this.isArray) {
+      const uploadSingleFileMiddleware = multer({storage}).single(this.fieldName);
+      uploadSingleFileMiddleware(req, res, next);
+    } else {
+      const uploadMultiFileMiddleware = multer({storage}).array(this.fieldName);
+      uploadMultiFileMiddleware(req, res, next);
+    }
   }
 }

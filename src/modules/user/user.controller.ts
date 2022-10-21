@@ -18,15 +18,17 @@ import {UploadFileMiddleware} from '../../common/middlewares/upload-file.middlew
 import LoggedUserResponse from './response/logged-user.response.js';
 import {JWT_ALGORITM} from './user-constants.js';
 import {PrivateRouteMiddleware} from '../../common/middlewares/private-route.middleware.js';
+import UploadUserAvatarResponse from './response/upload-user-avatar.response.js';
+import { ValidateObjectIdMiddleware } from '../../common/middlewares/validate-objectid.middleware.js';
 
 @injectable()
 export default class UserController extends Controller {
   constructor(
     @inject(Component.LoggerInterface) logger: LoggerInterface,
     @inject(Component.UserServiceInterface) private readonly userService: UserServiceInterface,
-    @inject(Component.ConfigInterface) private readonly configService: ConfigInterface,
+    @inject(Component.ConfigInterface) configService: ConfigInterface,
   ) {
-    super(logger);
+    super(logger, configService);
     this.logger.info('Register routes for UserController...');
 
     this.addRoute({
@@ -53,12 +55,12 @@ export default class UserController extends Controller {
       ]
     });
     this.addRoute({
-      path: '/:email/avatar',
+      path: '/:userId/avatar',
       method: HttpMethod.Post,
       handler: this.uploadAvatar,
       middlewares: [
         new PrivateRouteMiddleware(),
-        new DocumentExistsMiddleware(this.userService, 'email', 'email', false),
+        new ValidateObjectIdMiddleware('userId'),
         new UploadFileMiddleware(this.configService.get('UPLOAD_DIRECTORY'), 'avatar'),
       ]
     });
@@ -106,19 +108,22 @@ export default class UserController extends Controller {
       { email: user.email, id: user.id}
     );
 
-    this.ok(res, fillDTO(LoggedUserResponse, {email: user.email, token}));
+    this.ok(res, {
+      ...fillDTO(LoggedUserResponse, user),
+      token
+    });
 
   }
 
   public async checkAuthStatus(req: Request, res: Response) {
     const user = await this.userService.findByEmail(req.user.email);
-
     this.ok(res, fillDTO(LoggedUserResponse, user));
   }
 
   public async uploadAvatar(req: Request, res: Response) {
-    this.created(res, {
-      filepath: req.file?.path
-    });
+    const {userId} = req.params;
+    const avatarUrl = {avatarUrl: req.file?.filename};
+    await this.userService.updateById(userId, avatarUrl);
+    this.created(res, fillDTO(UploadUserAvatarResponse, avatarUrl));
   }
 }

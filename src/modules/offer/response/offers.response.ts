@@ -3,7 +3,7 @@ import { CityResponse } from './city.response.js';
 
 export class OffersResponse {
   @Exclude()
-  public uid?: string;
+  public currentUserId?: string;
 
   @Expose({name: 'id'})
   public offerId!: string;
@@ -19,7 +19,7 @@ export class OffersResponse {
 
   @Expose({name: 'isFavorite'})
   @Type(() => String)
-  @Transform(({ value, obj  }) => value.includes(obj.uid), { toClassOnly: true })
+  @Transform(({ value, obj  }) => value.includes(obj.currentUserId), { toClassOnly: true })
   public isFavorite!: string;
 
   @Expose()

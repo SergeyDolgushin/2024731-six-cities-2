@@ -21,7 +21,7 @@ export class OfferEntity extends defaultClasses.TimeStamps {
   @prop({required: true, default: 0})
   public rating!: number;
 
-  @prop({required: true})
+  @prop({default: ''})
   public images!: string[];
 
   @prop({required: true})
@@ -39,7 +39,7 @@ export class OfferEntity extends defaultClasses.TimeStamps {
   @prop({required: true})
   public type!: string;
 
-  @prop({required: true})
+  @prop({default: ''})
   public previewImage!: string;
 
   @prop({required: true})
@@ -76,7 +76,7 @@ export class OfferEntity extends defaultClasses.TimeStamps {
   public createdDate!: Date;
 
   @prop({required: false})
-  public uid?: string;
+  public currentUserId?: string;
 }
 
 export const OfferModel = getModelForClass(OfferEntity);

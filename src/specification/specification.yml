@@ -481,6 +481,50 @@ paths:
                 $ref: '#/components/schemas/RequestNotCorrect'
       security:
         - tokenAuth: []
+  /offers/{offersId}/image:
+    post:
+      tags:
+        - offers
+      summary: Загрузить массив из фото для предложения
+      description: Загрузка массива фото для предложения
+      operationId: postImages
+      parameters:
+        - name: offersId
+          in: path
+          description: Уникальный идентификатор предложения
+          required: true
+          schema:
+            type: number
+            example: Bearer  eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InNlcjFAb3Zlcmxvb2submV0IiwiaWQiOiI2MzUxNzY2MTE2MjA0ZWRkYmFiNDU4YWUiLCJpYXQiOjE2NjYzNjgyMTQsImV4cCI6MTY2NjU0MTAxNH0.tyn2Y2QKMpL-D52NCKT0CuaS_lx5BCWd4F7kXKcWKcM
+        - name: JWT
+          in: header
+          description: Авторизационный токен пользователя
+          required: true
+          schema:
+            type: string
+            example: T2xpdmVyLmNvbm5lckBnbWFpbC5jb20=
+      responses:
+        '201':
+          description: Объект предложения
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArrayPhotos'
+        '400':
+          description: Предложения с таким ID не существует
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotExistFavoriteErrorMessage'
+        '401':
+          description: Пользователь не авторизован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvalidToken'
+
+      security:
+        - tokenAuth: []
 
   /comments/{offerId}:
     get:
@@ -873,3 +917,16 @@ components:
         error:
           type: string
           example: Object with 6330703eb8b0577d4a49fc811 not found
+    InvalidToken:
+      type: object
+      properties:
+        error:
+          type: string
+          example: Invalid token
+    ArrayPhotos:
+      type: object
+      properties:
+        images:
+          type: array
+          example: ["jvgcAq93flg3DHxPHsR80.png", "jvgcAq93flg3DHxPHsR80.png", "jvgcAq93flg3DHxPHsR80.png", "jvgcAq93flg3DHxPHsR80.png", "jvgcAq93flg3DHxPHsR80.png", "jvgcAq93flg3DHxPHsR80.png",]
+

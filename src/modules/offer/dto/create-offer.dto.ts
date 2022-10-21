@@ -1,23 +1,17 @@
 import { LocationType } from '../../../types/offer-type.js';
-import {ArrayMaxSize, ArrayMinSize, IsArray, IsBoolean, IsDateString, IsEnum, IsInt, IsMongoId, Matches, Max, MaxLength, Min, MinLength, Validate} from 'class-validator';
+import { IsArray, IsBoolean, IsDateString, IsEnum, IsInt, IsMongoId, Matches,
+  Max, MaxLength, Min, MinLength, Validate} from 'class-validator';
 import { GoodsType } from '../../../types/goods-types.enum.js';
 import { HouseType } from '../../../types/house-types.enum.js';
 import LocationValidator from '../../../common/validator/location-validator.js';
 import { MAX_ADULTS, MAX_DESCRIPTION, MAX_PRICE, MAX_ROOMS, MAX_TITLE,
-  MIN_ADULTS, MIN_DESCRIPTION, MIN_PRICE, MIN_ROOMS, MIN_TITLE,
-  PHOTOS_LENGTH } from '../offer-constant.js';
+  MIN_ADULTS, MIN_DESCRIPTION, MIN_PRICE, MIN_ROOMS, MIN_TITLE } from '../offer-constant.js';
 
 export default class CreateOfferDto {
   @IsInt({message: 'Price must be an integer'})
   @Min(MIN_PRICE, {message: `Minimum price is ${MIN_PRICE}`})
   @Max(MAX_PRICE, {message: `Maximum price is ${MAX_PRICE}`})
   public price!: number;
-
-  @IsArray({ message: 'Photos must be an array' })
-  @ArrayMinSize(PHOTOS_LENGTH, { message: `Photos must be ${PHOTOS_LENGTH}`})
-  @ArrayMaxSize(PHOTOS_LENGTH, { message: `Photos must be ${PHOTOS_LENGTH}`})
-  @Matches(/[\w/-]+.(jpg|png)/, { each: true, message: 'Photo must be jpg or png' })
-  public images!: string[];
 
   @MinLength(MIN_TITLE, {message: `Minimum title length must be ${MIN_TITLE}`})
   @MaxLength(MAX_TITLE, {message: `Maximum title length must be ${MAX_TITLE}`})
